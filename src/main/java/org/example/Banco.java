@@ -24,7 +24,7 @@ public class Banco {
             System.out.println("Seleccione una Opcion: ");
             opcion = sc.nextInt();
             sc.nextLine();
-
+            System.out.println("-------------------------------------------");
             //Ingreso de datos --------------------------------------------------------
 
         switch (opcion) {
@@ -50,6 +50,8 @@ public class Banco {
                     System.out.print("Altura: ");
                     int altura = sc.nextInt();
                     sc.nextLine();
+                    System.out.print("Ciudad: ");
+                    String ciudad = sc.nextLine();
 
                     System.out.print("Nro de cuenta : ");
                     int nro = sc.nextInt();
@@ -58,8 +60,12 @@ public class Banco {
                     Cuenta nuevoCta = new Cuenta();
                     nuevoCta.nombreCliente = nom;
                     nuevoCta.numeroDeCuenta = nro;
+                    nuevoCta.edad = edad;
+                    nuevoCta.direccion = new Direccion (calle, altura, ciudad);
 
                     listaCuentas.add(nuevoCta);
+                    System.out.println("Cuenta creada .");
+                    System.out.println("-------------------------------------------");
 
                 } else {
                     System.out.print("Menor de Edad, NO SE PUEDE CREAR UNA CUENTA X ");
@@ -75,21 +81,101 @@ public class Banco {
             double monto =sc.nextDouble();
 
             for (Cuenta c : listaCuentas){
-                if(c.numeroDeCuenta ==ctaBuscar) c.saldo += monto;
+                if(c.numeroDeCuenta ==ctaBuscar) {
+                    c.saldo += monto;
+                    System.out.println("Saldo actualizado: $" + c.saldo);
+                    System.out.println("-------------------------------------------");
+                }
             }
             break;
 
-            case 4 :
+            case 4:
+                System.out.print("Nro Cuenta Origen: ");
+                int origenID = sc.nextInt();
+                System.out.print("Nro Cuenta Destino: ");
+                int destinoID = sc.nextInt();
+                System.out.print("Monto a Transferir: ");
+                double montoTrans = sc.nextDouble();
 
-                //retiro de sucursal fisicamente
-                if(listSucursales.isEmpty()) {
-                    System.out.println("No hay sucursales Fisicas Registradas");
-
-                }else {
-                    System.out.printf(" Monto a Retirar: ");
-                    double retiro =sc.nextDouble();
-                    //agregar logica de resta
+                Cuenta cOrigen = null, cDestino = null;
+                for (Cuenta c : listaCuentas) {
+                    if (c.numeroDeCuenta == origenID) cOrigen = c;
+                    if (c.numeroDeCuenta == destinoID) cDestino = c;
                 }
+
+                if (cOrigen != null && cDestino != null) {
+                    Trasferencias.ejecutar(cOrigen, cDestino, montoTrans);
+                } else {
+                    System.out.println("Una o ambas cuentas no existen.");
+                }
+                break;
+
+            case 5:
+                if (listSucursales.isEmpty()) {
+                    System.out.println("No hay sucursales físicas registradas.");
+                } else {
+                    System.out.print("Nro de Cuenta para retiro: ");
+                    int ctaRetiroID = sc.nextInt();
+                    System.out.print("Monto a Retirar: ");
+                    double retiro = sc.nextDouble();
+
+                    for (Cuenta c : listaCuentas) {
+                        if (c.numeroDeCuenta == ctaRetiroID) {
+                            if (c.saldo >= retiro) {
+                                c.saldo -= retiro;
+                                System.out.println("Retiro exitoso de la sucursal. Nuevo saldo: $" + c.saldo);
+                                System.out.println("-------------------------------------------");
+                            } else {
+                                System.out.println("Saldo insuficiente.");
+                                System.out.println("-------------------------------------------");
+                            }
+                        }
+                    }
+                }
+                break;
+
+
+                //esta parte hace el balance total y muestra la info general cargada
+            case 7:
+                System.out.println("\n--REPORTE GENERAL DEL BANCO--- ");
+
+                // --- Sucursales
+                System.out.println("\n[Sucursales Fisicas]");
+                if (listSucursales.isEmpty()) {
+                    System.out.println("No hay sucursales registradas");
+                } else {
+                    for (Sucursal s : listSucursales) {
+                        System.out.println(" > " + s.nombreSucursal + " (Dir: " + s.direccionFisica + ")");
+                    }
+                }
+
+                //  MUESTRA CUENTAS Y BALANCE !
+                System.out.println("\n Estado de Cuentas :");
+                if (listaCuentas.isEmpty()) {
+                    System.out.println("No hay cuentas registradas");
+                } else {
+
+                    double saldoTotalBanco = 0; // Variable para sumarlo todo
+
+                    System.out.printf("%-15s | %-10s | %-20s | %-10s%n", "TITULAR", "CUENTA", "CIUDAD", "SALDO");
+                    System.out.println("----------------------------------------------------------------------");
+
+                    for (Cuenta c : listaCuentas) {
+                        // Navegamos EL OBJETO DIRECION  Cuenta -> Direccion -> Ciudad
+                        System.out.printf("%-15s | %-10d | %-20s | $%.2f%n",
+                                c.nombreCliente,
+                                c.numeroDeCuenta,
+                                c.direccion.ciudad,
+                                c.saldo);
+
+                        saldoTotalBanco += c.saldo; // Acumulamos el saldo de cada cuenta
+                    }
+
+                    System.out.println("----------------------------------------------------------------------");
+                    System.out.printf("TOTAL DINERO EN BANCO: $%.2f%n", saldoTotalBanco);
+                    //System.out.println("CANTIDAD DE CLIENTES: " + listaCuentas.size());
+                }
+                System.out.println("=-------------------------------\n");
                 break;
 
         }
