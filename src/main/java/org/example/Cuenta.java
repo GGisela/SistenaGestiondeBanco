@@ -10,6 +10,8 @@ public class Cuenta {
     public  double saldo;
     public int edad;// hacer un if mayor de 18
     public Direccion direccion;// Usamos el objeto Direccion
+    public String usuario;      //  para login del cliente
+    public String pass;     //  para login del cliente
 
     //el constructor
     public Cuenta (){

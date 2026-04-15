@@ -11,176 +11,141 @@ public class Banco {
         ArrayList<Sucursal> listSucursales=new ArrayList<>();
         int opcion=0;
 
-        //se crea menu para el admin
-        while (opcion!=6){
+          // Datos del Super Admin (Harcodeados por ahora)
+        String superUser = "admin";
+        String superPass = "123";
 
-            System.out.println("\n---MENU DEL ADMINISTRADOR---");
-            System.out.println("-1.Agrega Sucursal");
-            System.out.println("-2.Alta de cliente (saldo 0)");
-            System.out.println("-3.Carga saldo(Deposito)");
-            System.out.println("-4.Trasferencias entre cuentas ");
-            System.out.println("-5.Retiro por cajero(Sucursal) ");
-            System.out.println("-6.Salir ");
-            System.out.println("Seleccione una Opcion: ");
-            opcion = sc.nextInt();
-            sc.nextLine();
+        // Sucursales precargadas
+        listSucursales.add(new Sucursal("Sede Central", "Av. Rivadavia 100", "adminSede1", "pass1"));
+        listSucursales.add(new Sucursal("Anexo Lanús", "9 de Julio 1200", "adminLanus", "pass2"));
+
+
+
+        //inicio del sietema , valida credenciales para acceder
+        //pantalla de incio *
+
+
+            System.out.println("\n--SISTEMA BANCARIO ---");
+            System.out.print("Usuario: ");
+            String userIn = sc.nextLine();
+            System.out.print("Password: ");
+            String passIn = sc.nextLine();
+            //------------------------------------------
             System.out.println("-------------------------------------------");
-            //Ingreso de datos --------------------------------------------------------
 
-        switch (opcion) {
+
+            boolean ejecutarSistema = true;
+            while (ejecutarSistema) {
+                System.out.println("\n------------------------------------------");
+                System.out.println("   SISTEMA DE GESTION BANCARIA" );
+                System.out.println("--------------------------------------");
+                System.out.print("Usuario: ");
+                String userIn = sc.nextLine();
+                System.out.print("Password: ");
+                String passIn = sc.nextLine();
+
+                // --- NIVEL 1  SUPER ADMIN ---
+                // Buscamos si es un Admin de Sucursal o un Usuario
+
+                if (userIn.equals(superUser) && passIn.equals(superPass)) {
+                        menuSuperAdmin(sc, listSucursales);
+                    }
+                    else {
+                        // Buscamos si es un Admin de Sucursal o un Usuario
+                        Sucursal sucursalLogueada = null;
+                        Cuenta usuarioLogueado = null;
+
+                        // Validamos Admin de Sucursal
+                        for (Sucursal s : listSucursales) {
+                            if (s.adminUser.equals(userIn) && s.adminPass.equals(passIn)) {
+                                sucursalLogueada = s;
+                                break;
+                            }
+                        }
+
+                        // Validamos Usuario (Cliente) si no se encontró un admin
+                        if (sucursalLogueada == null) {
+                            for (Sucursal s : listSucursales) {
+                                for (Cuenta c : s.listaCuentas) {
+                                    if (c.usuario.equals(userIn) && c.pass.equals(passIn)) {
+                                        usuarioLogueado = c;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (sucursalLogueada != null) {
+                            menuAdminSucursal(sc, sucursalLogueada, listSucursales);
+                        } else if (usuarioLogueado != null) {
+                            menuUsuario(sc, usuarioLogueado, listSucursales);
+                        } else {
+                            System.out.println("Credenciales incorrectas. Intente de nuevo.");
+                        }
+                    }
+                }
+            }
+//---------------------------- metodos de menus
+
+    private static void menuSuperAdmin(Scanner sc, ArrayList<Sucursal> sucursales) {
+        int op = 0;
+        while (op != 3) {
+            System.out.println("\n  Perfil:  SUPER ADMINISTRADOR ( BANCO )");
+            System.out.println("1. Alta de Sucursal");
+            System.out.println("2. Ver Reporte total del Banco");
+            System.out.println("3. Cerrar Sesion");
+            System.out.print("Seleccione una opcion : ");
+            op = sc.nextInt(); sc.nextLine();
+
+        switch (op) {
             case 1:
                 System.out.print("Nombre de Sucursal: ");
                 String nSuc = sc.nextLine();
                 System.out.print("Direccion: ");
-                String dSuc = sc.nextLine();
-                listSucursales.add(new Sucursal(nSuc, dSuc));
-                System.out.printf("sucursal agregada .");
+                System.out.print("User Admin Local: "); String u = sc.nextLine();
+                System.out.print("Pass Admin Local: "); String p = sc.nextLine();
+                sucursales.add(new Sucursal(n, d, u, p));
+                System.out.println("Sucursal registrada con Correctamente");
+                System.out.println("--------------------------");
                 break;
             case 2:
-                System.out.print("Nombre de Cliente: ");
-                String nom = sc.nextLine();
-                System.out.print("Edad: ");
-                int edad = sc.nextInt();
-                sc.nextLine();
-
-                if (edad >= 18) {
-                    System.out.println(" Ingrese Direcion del cliente");
-                    System.out.print("Calle : ");
-                    String calle = sc.nextLine();
-                    System.out.print("Altura: ");
-                    int altura = sc.nextInt();
-                    sc.nextLine();
-                    System.out.print("Ciudad: ");
-                    String ciudad = sc.nextLine();
-
-                    System.out.print("Nro de cuenta : ");
-                    int nro = sc.nextInt();
-                    sc.nextLine();//limpiar bu
-
-                    Cuenta nuevoCta = new Cuenta();
-                    nuevoCta.nombreCliente = nom;
-                    nuevoCta.numeroDeCuenta = nro;
-                    nuevoCta.edad = edad;
-                    nuevoCta.direccion = new Direccion (calle, altura, ciudad);
-
-                    listaCuentas.add(nuevoCta);
-                    System.out.println("Cuenta creada .");
-                    System.out.println("-------------------------------------------");
-
-                } else {
-                    System.out.print("Menor de Edad, NO SE PUEDE CREAR UNA CUENTA X ");
-
-            }
+                mostrarReporteGeneral(sucursales);
             break;
 
-        case 3:
-            //se le agrega saldo manuelmente
-            System.out.print("Nro de Cuenta a Cargar :");
-             int ctaBuscar =sc.nextInt();
-            System.out.print("ingrese el monto a Depositar: ");
-            double monto =sc.nextDouble();
+         }
 
-            for (Cuenta c : listaCuentas){
-                if(c.numeroDeCuenta ==ctaBuscar) {
-                    c.saldo += monto;
-                    System.out.println("Saldo actualizado: $" + c.saldo);
-                    System.out.println("-------------------------------------------");
-                }
-            }
-            break;
-
-            case 4:
-                System.out.print("Nro Cuenta Origen: ");
-                int origenID = sc.nextInt();
-                System.out.print("Nro Cuenta Destino: ");
-                int destinoID = sc.nextInt();
-                System.out.print("Monto a Transferir: ");
-                double montoTrans = sc.nextDouble();
-
-                Cuenta cOrigen = null, cDestino = null;
-                for (Cuenta c : listaCuentas) {
-                    if (c.numeroDeCuenta == origenID) cOrigen = c;
-                    if (c.numeroDeCuenta == destinoID) cDestino = c;
-                }
-
-                if (cOrigen != null && cDestino != null) {
-                    Trasferencias.ejecutar(cOrigen, cDestino, montoTrans);
-                } else {
-                    System.out.println("Una o ambas cuentas no existen.");
-                }
-                break;
-
-            case 5:
-                if (listSucursales.isEmpty()) {
-                    System.out.println("No hay sucursales físicas registradas.");
-                } else {
-                    System.out.print("Nro de Cuenta para retiro: ");
-                    int ctaRetiroID = sc.nextInt();
-                    System.out.print("Monto a Retirar: ");
-                    double retiro = sc.nextDouble();
-
-                    for (Cuenta c : listaCuentas) {
-                        if (c.numeroDeCuenta == ctaRetiroID) {
-                            if (c.saldo >= retiro) {
-                                c.saldo -= retiro;
-                                System.out.println("Retiro exitoso de la sucursal. Nuevo saldo: $" + c.saldo);
-                                System.out.println("-------------------------------------------");
-                            } else {
-                                System.out.println("Saldo insuficiente.");
-                                System.out.println("-------------------------------------------");
-                            }
-                        }
-                    }
-                }
-                break;
-
-
-                //esta parte hace el balance total y muestra la info general cargada
-            case 7:
-                System.out.println("\n--REPORTE GENERAL DEL BANCO--- ");
-
-                // --- Sucursales
-                System.out.println("\n[Sucursales Fisicas]");
-                if (listSucursales.isEmpty()) {
-                    System.out.println("No hay sucursales registradas");
-                } else {
-                    for (Sucursal s : listSucursales) {
-                        System.out.println(" > " + s.nombreSucursal + " (Dir: " + s.direccionFisica + ")");
-                    }
-                }
-
-                //  MUESTRA CUENTAS Y BALANCE !
-                System.out.println("\n Estado de Cuentas :");
-                if (listaCuentas.isEmpty()) {
-                    System.out.println("No hay cuentas registradas");
-                } else {
-
-                    double saldoTotalBanco = 0; // Variable para sumarlo todo
-
-                    System.out.printf("%-15s | %-10s | %-20s | %-10s%n", "TITULAR", "CUENTA", "CIUDAD", "SALDO");
-                    System.out.println("----------------------------------------------------------------------");
-
-                    for (Cuenta c : listaCuentas) {
-                        // Navegamos EL OBJETO DIRECION  Cuenta -> Direccion -> Ciudad
-                        System.out.printf("%-15s | %-10d | %-20s | $%.2f%n",
-                                c.nombreCliente,
-                                c.numeroDeCuenta,
-                                c.direccion.ciudad,
-                                c.saldo);
-
-                        saldoTotalBanco += c.saldo; // Acumulamos el saldo de cada cuenta
-                    }
-
-                    System.out.println("----------------------------------------------------------------------");
-                    System.out.printf("TOTAL DINERO EN BANCO: $%.2f%n", saldoTotalBanco);
-                    //System.out.println("CANTIDAD DE CLIENTES: " + listaCuentas.size());
-                }
-                System.out.println("=-------------------------------\n");
-                break;
-
-        }
-
+       }
     }
+    private static void menuAdminSucursal(Scanner sc, Sucursal miSucursal, ArrayList<Sucursal> todas) {
+        int op = 0;
 
+            while (op != 4) {
+            System.out.println("\n----- Perfil: ADMIN SUCURSAL (" + miSucursal.nombreSucursal + ")");
+                System.out.println("1. Alta de Cuenta (Cliente)");
+                System.out.println("2. Cargar Saldo - DEPOSITAR");
+                System.out.println("3. Lista de Clientes de mi Sucursal");
+                System.out.println("4. Cerrar Sesión");
+                op = sc.nextInt(); sc.nextLine();
+
+                //---------------validamos si es +18 y se crea una cuenta
+                if (op == 1) {
+                    Cuenta nueva = new Cuenta();
+                    System.out.print("Nombre Titular: "); nueva.nombreCliente = sc.nextLine();
+                    System.out.print("Edad: "); nueva.edad = sc.nextInt(); sc.nextLine();
+                    if (nueva.edad < 18) {
+                        System.out.println("No se puede cargar cuenta , es menor de Edad");
+                        continue;
+                    }
+                    System.out.print("Nro de Cuenta: "); nueva.numeroDeCuenta = sc.nextInt(); sc.nextLine();
+                    System.out.print("Usuario para Login: "); nueva.usuario = sc.nextLine();
+                    System.out.print("Password para Login: "); nueva.pass= sc.nextLine();
+                    System.out.print("Ciudad: "); String city = sc.nextLine();
+                    nueva.direccion = new Direccion("S/N", 0, city);
+                    miSucursal.listaCuentas.add(nueva);
+                    System.out.println("Cuenta creada exitosamente en " + miSucursal.nombreSucursal);
+                } else if (op == 2) {
+
+                }
+        }
     }
 }
