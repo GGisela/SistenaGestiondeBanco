@@ -1,6 +1,7 @@
 package org.example;
 
 public class Trasferencias {
+    //metodo para trasferir
     public static void ejecutar(Cuenta origen, Cuenta destino, double monto){
         if (origen.saldo>= monto) {
             origen.saldo -= monto;

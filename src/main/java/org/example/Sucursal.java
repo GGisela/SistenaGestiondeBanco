@@ -6,15 +6,14 @@ public class Sucursal {
 
     public String nombreSucursal;
     public String direccionFisica;
-    public String adminUser;     // Credenciales del admin de esta sucursal
-    public String adminPass;
-    public ArrayList<Cuenta> listaCuentas; // Las cuentas pertenecen a la sucursal
+   public  AdminSucursal administrador; //OBJ HEREDADO
+    public ArrayList<Cuenta> listaCuentas; // cuentas pertenecen a la sucursal y se guardan en este array
 
-    public Sucursal(String nombre, String direccion, String adminUser, String adminPass) {
+    public Sucursal(String nombre, String direccion, String u, String p) {
         this.nombreSucursal = nombre;
         this.direccionFisica = direccion;
-        this.adminUser = adminUser;
-        this.adminPass = adminPass;
+        //se va a crear el administradoc uando se cree cada sucursal ya hay dos predefinidos
+        this.administrador = new AdminSucursal(u, p, "Admin " + nombre);
         this.listaCuentas = new ArrayList<>();
 
     }
